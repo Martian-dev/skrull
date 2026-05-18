@@ -57,21 +57,6 @@ func worker(
 	}
 }
 
-// func (s *Scheduler) dedupe(input []string) []string {
-// 	var result []string
-//
-// 	for _, v := range input {
-// 		if !s.shouldVisit(v) {
-// 			continue
-// 		}
-//
-// 		s.Visited[v] = struct{}{}
-// 		result = append(result, v)
-// 	}
-//
-// 	return result
-// }
-
 func (s *Scheduler) Schedule(url string) chan fetcher.Document {
 	jobs := make(chan URLJob, 1000)
 	documents := make(chan fetcher.Document, 1000)
@@ -88,16 +73,6 @@ func (s *Scheduler) Schedule(url string) chan fetcher.Document {
 	jobs <- URLJob{url}
 	defer close(jobs)
 	defer tasks.Wait()
-
-	// for doc := range documents {
-	// 	// process parsed document
-	// 	dedupedURL := s.dedupe(doc.Links)
-	// 	doc.Links = dedupedURL
-	// 	for _, link := range dedupedURL {
-	// 		wg.Add(1)
-	// 		jobs <- URLJob{link}
-	// 	}
-	// }
 
 	return documents
 }
