@@ -2,7 +2,6 @@
 package scheduler
 
 import (
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -39,7 +38,6 @@ func worker(
 	s *Scheduler,
 ) {
 	for job := range jobs {
-		fmt.Println(job.URL) // just to print and show the url im getting
 		doc, err := fetcher.FetchContent(job.URL, client)
 		if err == nil {
 			documents <- doc
@@ -64,15 +62,23 @@ func (s *Scheduler) Schedule(url string) chan fetcher.Document {
 	var tasks sync.WaitGroup
 
 	// worker pool
-	for range 10 {
+	for range 100 {
 		go worker(jobs, documents, s.HTTPClient, &tasks, s)
 	}
 
 	s.shouldVisit(url)
 	tasks.Add(1)
 	jobs <- URLJob{url}
-	defer close(jobs)
-	defer tasks.Wait()
+
+	// defer close(jobs)
+	// defer tasks.Wait()
+
+	// shutdown routine
+	go func() {
+		tasks.Wait()
+		close(jobs)
+		close(documents)
+	}()
 
 	return documents
 }

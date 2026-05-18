@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -23,5 +24,9 @@ func main() {
 	// TODO: prepare the parser
 	// TODO: figure out how the results are stored (or atleast for now display the results)
 
-	scheduler.Schedule(url)
+	docs := scheduler.Schedule(url)
+
+	for doc := range docs {
+		fmt.Println(doc.URL)
+	}
 }
